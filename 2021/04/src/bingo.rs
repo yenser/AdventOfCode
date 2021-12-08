@@ -44,7 +44,7 @@ impl BingoBoard {
     print!("\n");
   }
 
-  pub fn call(&mut self, val: u32) -> bool {
+  pub fn call(&mut self, val: u32) {
     'outer: for (i, row) in self.layout.iter().enumerate() {
       for (j, tile) in row.iter().enumerate() {
         if tile.value == val {
@@ -53,6 +53,10 @@ impl BingoBoard {
         }
       }
     }
+  }
+
+  pub fn call_and_validate_win(&mut self, val: u32) -> bool {
+    self.call(val);
 
     return self.check_win();
   }
