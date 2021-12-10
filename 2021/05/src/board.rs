@@ -12,21 +12,21 @@ struct Coord {
 
 pub struct Board {
   pub name: String,
-  pub layout: [[u32; BOARD_SIZE]; BOARD_SIZE],
+  pub layout: Vec<Vec<u32>>,
 }
 
 impl Board {
   pub fn new(name: &str) -> Board {
     let board = Board {
       name: name.to_string(),
-      layout: [[0; BOARD_SIZE]; BOARD_SIZE],
+      layout: vec![vec![0; BOARD_SIZE]; BOARD_SIZE],
     };
     return board;
   }
 
   pub fn print(&self) {
     println!("{}", self.name);
-    for y in self.layout {
+    for y in self.layout.iter() {
       for (i, x) in y.iter().enumerate() {
         if *x == 0 {
           print!(".");
@@ -70,7 +70,7 @@ impl Board {
             self.add_point(coord1.x as usize, (coord1.y as i32 - i) as usize);
           }
         }
-        self.print();
+        // self.print();
       } else if coord1.y == coord2.y {
         // println!("{},{} -> {},{}", coord1.x, coord1.y, coord2.x, coord2.y);
         let diff = coord1.x as i32 - coord2.x as i32;
@@ -87,7 +87,7 @@ impl Board {
           }
         }
 
-        self.print();
+        // self.print();
       } else {
         println!("Throwing out {},{} -> {},{}", coord1.x, coord1.y, coord2.x, coord2.y);
       }
@@ -97,7 +97,7 @@ impl Board {
   pub fn add_twos_or_more(&self) -> i32 {
     let mut total: i32 = 0;
 
-    for y in self.layout {
+    for y in self.layout.iter() {
       for x in y.iter() {
         if *x >= 2 {
           total += 1;
