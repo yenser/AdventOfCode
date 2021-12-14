@@ -46,7 +46,7 @@ impl Board {
     self.layout[y][x] += 1;
   }
 
-  pub fn read_vents_from_file(&mut self, file_name: &str) {
+  pub fn read_vents_from_file_no_diagonal(&mut self, file_name: &str) {
     let file = File::open(file_name).unwrap();
     let reader = BufReader::new(file);
 
@@ -89,9 +89,110 @@ impl Board {
 
         // self.print();
       } else {
-        println!("Throwing out {},{} -> {},{}", coord1.x, coord1.y, coord2.x, coord2.y);
+        println!(
+          "Throwing out {},{} -> {},{}",
+          coord1.x, coord1.y, coord2.x, coord2.y
+        );
       }
     }
+  }
+
+  pub fn read_vents_from_file(&mut self, file_name: &str) {
+    let file = File::open(file_name).unwrap();
+    let reader = BufReader::new(file);
+
+    let mut throw_out_count: u32 = 0;
+    let mut horizontal_count: u32 = 0;
+    let mut vertical_count: u32 = 0;
+    let mut diagonal_count: u32 = 0;
+
+    for line in reader.lines() {
+      let line = line.unwrap();
+
+      let (coord1, coord2) = read_coord_from_string(line).unwrap();
+
+      let incline_value: f32 =
+        (coord1.y as i32 - coord2.y as i32) as f32 / (coord1.x as i32 - coord2.x as i32) as f32;
+      // Horizontal
+      if coord1.x == coord2.x {
+        let diff = coord1.y as i32 - coord2.y as i32;
+
+        if diff < 0 {
+          for i in 0..(diff.abs() + 1) {
+            self.add_point(coord1.x as usize, (coord1.y as i32 + i) as usize);
+          }
+        } else {
+          for i in 0..(diff + 1) {
+            self.add_point(coord1.x as usize, (coord1.y as i32 - i) as usize);
+          }
+        }
+        horizontal_count += 1;
+
+        //Vertical
+      } else if coord1.y == coord2.y {
+        let diff = coord1.x as i32 - coord2.x as i32;
+
+        if diff < 0 {
+          for i in 0..(diff.abs() + 1) {
+            self.add_point((coord1.x as i32 + i) as usize, coord1.y as usize);
+          }
+        } else {
+          for i in 0..(diff + 1) {
+            self.add_point((coord1.x as i32 - i) as usize, coord1.y as usize);
+          }
+        }
+        vertical_count += 1;
+
+        // diagonal
+      } else if incline_value.abs() == 1.0 {
+        // upper left to bottom right
+
+        let diff = coord1.x as i32 - coord2.x as i32;
+
+        // println!("Inc: {}\tDiff: {}", incline_value, diff);
+
+        if incline_value == 1.0 {
+          for i in 0..(diff.abs() + 1) {
+            if coord1.x < coord2.x {
+              self.add_point(
+                (coord1.x as i32 + i) as usize,
+                (coord1.y as i32 + i) as usize,
+              );
+            } else {
+              self.add_point(
+                (coord2.x as i32 + i) as usize,
+                (coord2.y as i32 + i) as usize,
+              );
+            }
+          }
+
+          // bottom left to upper right
+        } else {
+          for i in 0..(diff.abs() + 1) {
+            if coord1.y > coord2.y {
+              self.add_point(
+                (coord1.x as i32 + i) as usize,
+                (coord1.y as i32 - i) as usize,
+              );
+            } else {
+              self.add_point(
+                (coord2.x as i32 + i) as usize,
+                (coord2.y as i32 - i) as usize,
+              );
+            }
+          }
+        }
+
+        diagonal_count += 1;
+      } else {
+        throw_out_count += 1;
+        // println!("Throwing out {},{} -> {},{}", coord1.x, coord1.y, coord2.x, coord2.y);
+      }
+    }
+    println!("Horizontal: {}", horizontal_count);
+    println!("Vertical: {}", vertical_count);
+    println!("Diagonal: {}", diagonal_count);
+    println!("Thrown out: {}", throw_out_count);
   }
 
   pub fn add_twos_or_more(&self) -> i32 {
@@ -101,7 +202,7 @@ impl Board {
       for x in y.iter() {
         if *x >= 2 {
           total += 1;
-        } 
+        }
       }
     }
 
