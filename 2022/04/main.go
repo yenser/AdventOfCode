@@ -7,28 +7,13 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	input "2022/packages"
+
 )
 
-func readFileToArray(fileName string) *[]string {
-	lines := []string{}
-
-	file, err := os.Open(fileName)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-
-	return &lines
-}
-
 func main() {
-	list := readFileToArray("input.txt")
+	list := input.ReadFileToArray("input.txt")
 
 	fmt.Println("-------- Part 1 --------")
 	part1(*list)
