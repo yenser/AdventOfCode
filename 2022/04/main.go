@@ -88,18 +88,20 @@ func part2(list []string) {
 		if section1[0] >= section2[0] && section1[0] <= section2[1] {
 			total++
 			fmt.Printf("%v %v *\n", section1, section2)
-
-			continue
-		}
-
-		if section1[1] >= section2[0] && section1[] { //[68 87] [8 67] *
+		} else if section1[1] >= section2[0] && section1[1] <= section2[1] {
 			total++
 			fmt.Printf("%v %v *\n", section1, section2)
-
-			continue
+		} else if section2[0] >= section1[0] && section2[0] <= section1[1] {
+			total++
+			fmt.Printf("%v %v *\n", section1, section2)
+		} else if section2[1] >= section1[0] && section2[1] <= section1[1] {
+			total++
+			fmt.Printf("%v %v *\n", section1, section2)
+		} else {
+			fmt.Printf("%v %v\n", section1, section2)
 		}
+		//[68 87] [8 67] *
 
-		fmt.Printf("%v %v\n", section1, section2)
 	}
 
 	fmt.Printf("Total: %d\n", total)
