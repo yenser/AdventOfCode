@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	input "2022/packages"
+	input "2022/packages/input"
 	stack "2022/packages/stack"
 )
 

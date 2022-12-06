@@ -1,4 +1,4 @@
-package packages
+package input
 
 import (
 	"bufio"
@@ -22,4 +22,16 @@ func ReadFileToArray(fileName string) *[]string {
 	}
 
 	return &lines
+}
+
+func ReadFileToScanner(fileName string) (*bufio.Scanner, *os.File) {
+	file, err := os.Open(fileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+
+	return scanner, file
 }
