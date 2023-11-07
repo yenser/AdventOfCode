@@ -31,7 +31,7 @@ fn part2(content: &String) -> Result<()> {
         }
 
         if floor == -1 {
-            println!("Basement at: {}", i);
+            println!("Basement at: {}", i+1);
             break;
         }
     }
