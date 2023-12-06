@@ -1,5 +1,6 @@
 use std::fs;
 use std::io::Result;
+use std::time::Instant;
 
 const FILE_NAME: &str = "resources/input.txt";
 
@@ -91,7 +92,36 @@ fn is_game_possible(game: &Game) -> bool {
     return true;
 }
 
+fn minimum_possible_colors(game: &Game) -> (i32, i32, i32) {
+    let mut red = 0;
+    let mut green = 0;
+    let mut blue = 0;
 
+    for hand in &game.hands {
+        for color in &hand.colors {
+            match color.color.as_str() {
+                "red" => {
+                    if color.count > red {
+                        red = color.count;
+                    }
+                },
+                "green" => {
+                    if color.count > green {
+                        green = color.count;
+                    }
+                },
+                "blue" => {
+                    if color.count > blue {
+                        blue = color.count;
+                    }
+                },
+                _ => panic!("UNKNOWN COLOR")
+            };
+        }
+    }
+
+    return (red, green, blue);
+}
 
 fn part1(content: &Vec<String>) -> Result<()> {
     println!("\nPart 1");
@@ -121,15 +151,37 @@ fn part1(content: &Vec<String>) -> Result<()> {
 fn part2(content: &Vec<String>) -> Result<()> {
     println!("\nPart 2");
 
+    let mut total = 0;
+
+    for line in content {
+
+        let game = parse_game(line);        
+
+
+        let (red, green, blue) = minimum_possible_colors(&game);
+
+        let power = red*green*blue;
+        println!("Game {}: red {}, green {}, blue {}, power {}", game.game_number, red, green, blue, power);
+
+        total += power;
+    }
+
+    println!("Total {}", total);
+
     return Ok(());
 }
 
 
 fn main() -> Result<()> {
     let content = fs::read_to_string(FILE_NAME)?.lines().map(String::from).collect();
+    let mut now = Instant::now();
 
     part1(&content)?;
+    println!("process took {:?}", now.elapsed());
+
+    now = Instant::now();
     part2(&content)?;
+    println!("process took {:?}", now.elapsed());
 
     return Ok(());
 }
