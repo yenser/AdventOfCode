@@ -2,9 +2,10 @@ use std::fs;
 use std::io::Result;
 use std::time::Instant;
 
-const FILE_NAME: &str = "resources/exampleInput.txt";
+const FILE_NAME: &str = "resources/input.txt";
 
 struct Symbol {
+    value: char,
     x: i32,
     y: i32,
 }
@@ -22,46 +23,88 @@ fn parse(content: &Vec<String>) -> Result<(Vec<PartNumber>, Vec<Symbol>)> {
     let mut part_numbers: Vec<PartNumber> = Vec::new();
     let mut symbols: Vec<Symbol> = Vec::new();
 
-    for line in content {
-        
+    for (y, line) in content.iter().enumerate() {
+        let (pn, s) = parse_line(line, y as i32)?;
+
+        if pn.len() > 0 {
+            part_numbers.extend(pn);
+        }
+
+        if s.len() > 0 {
+            symbols.extend(s);
+        }
     }
 
     return Ok((part_numbers, symbols));
 }
 
 fn parse_line(line: &str, y: i32) -> Result<(Vec<PartNumber>, Vec<Symbol>)> {
-    let mut part_number: Vec<PartNumber> = Vec::new();
+    let mut part_numbers: Vec<PartNumber> = Vec::new();
     let mut symbols: Vec<Symbol> = Vec::new();
 
+    let mut num: String = String::from("");
+    let mut building_num = false;
+    let mut xStart = 0;
     for (x, c) in line.chars().enumerate() {
-        let mut num: String = String::from("");
-        let mut building_num = false;
 
         match c {
             '0'..='9' => {
-                let value = c.to_digit(10).unwrap() as i32;
-                part_number.push(PartNumber { value, x0: 0, x1: 0, y: 0 });
+                num.push(c);
+
+                if !building_num {
+                    xStart = x;
+                }
+                building_num = true;
             },
             _ => {
                 if building_num {
-                    num.push(c);
-                    building_num = true;
+                    part_numbers.push(PartNumber { value: num.parse::<i32>().unwrap(), x0: xStart as i32, x1: (x-1) as i32, y: y });
+                    num = String::from("");
+                    xStart = 0;
+                    building_num = false;
                 }
 
                 if c != '.' {
-                    symbols.push(Symbol { x: x as i32, y: y });
+                    symbols.push(Symbol { value: c, x: x as i32, y: y });
                 }
             },
         }
     }
+
+    if building_num { // catch numbers that end at the end of the line
+        part_numbers.push(PartNumber { value: num.parse::<i32>().unwrap(), x0: xStart as i32, x1: line.len() as i32, y: y });
+    }
     
-    return Ok((part_number, symbols));
+    return Ok((part_numbers, symbols));
 }
 
 
 fn part1(content: &Vec<String>) -> Result<()> {
     println!("\nPart 1");
 
+    let mut total = 0;
+
+    let (part_numbers, symbols) = parse(content)?;
+
+    println!("Part Numbers: {}", part_numbers.len());
+    println!("Symbols: {}", symbols.len());
+
+    for pn in part_numbers {
+        for s in &symbols {
+
+            let y_diff = (pn.y - s.y).abs();
+            let x_min = pn.x0 - 1;
+            let x_max = pn.x1 + 1;
+
+            if s.x >= x_min && s.x <= x_max && y_diff <= 1 {
+                println!("{}: {} {} {} | {}: {} {}", pn.value, pn.x0, pn.x1, pn.y, s.value, s.x, s.y);
+                total += pn.value;
+                break;
+            }
+        }
+    }
+
+    println!("Total: {}", total);
 
     return Ok(());
 }
@@ -69,6 +112,41 @@ fn part1(content: &Vec<String>) -> Result<()> {
 fn part2(content: &Vec<String>) -> Result<()> {
     println!("\nPart 2");
 
+    let mut total = 0;
+
+    let (part_numbers, symbols) = parse(content)?;
+
+    println!("Part Numbers: {}", part_numbers.len());
+    println!("Symbols: {}", symbols.len());
+
+    for s in &symbols {
+        let mut first_value = 0;
+        let mut first_found = false;
+
+        for pn in &part_numbers {
+            let y_diff = (pn.y - s.y).abs();
+            let x_min = pn.x0 - 1;
+            let x_max = pn.x1 + 1;
+
+            if pn.y >= s.y + 2 {
+                break;
+            }
+
+            if s.x >= x_min && s.x <= x_max && y_diff <= 1 {
+                if !first_found  {
+                    first_value = pn.value;
+                    first_found = true;
+                } else {
+                    println!("{} {} {} : {} {}", s.value, s.x, s.y, first_value, pn.value);
+                    total += first_value * pn.value;
+                    break;
+                }
+            }
+
+        }
+    }
+
+    println!("Total: {}", total);
 
     return Ok(());
 }
