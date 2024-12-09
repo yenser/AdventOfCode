@@ -6,20 +6,6 @@ import (
 	"strings"
 )
 
-const mulExp = `mul\(([0-9]{1,3}\,[0-9]{1,3})\)`
-
-type Letter struct {
-	Value  rune
-	IsWord bool
-}
-
-func NewLetter(letter rune) Letter {
-	return Letter{
-		Value:  letter,
-		IsWord: false,
-	}
-}
-
 func getRulesAndPages(data []byte) (rules map[int][]int, updates [][]int) {
 	lines := strings.Split(string(data), "\n")
 
